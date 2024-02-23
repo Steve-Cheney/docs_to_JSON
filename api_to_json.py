@@ -44,6 +44,34 @@ def remove_header_prefix(json_obj, key_name):
         for item in json_obj:
             remove_header_prefix(item, key_name)
 
+def group_data_by_package_and_submodule(data):
+    # Initialize an empty dictionary for the grouped data
+    grouped_data = {}
+
+    # Iterate over the items in the original dictionary
+    for function, details in data.items():
+        package = details["Package"]
+        submodule = details["Submodule"]
+
+        # Initialize the package key in the new dictionary if it doesn't exist
+        if package not in grouped_data:
+            grouped_data[package] = {}
+
+        # If the submodule is not empty, use it as a sub-key
+        if submodule:
+            if submodule not in grouped_data[package]:
+                grouped_data[package][submodule] = {}
+            # Use the function name as the key within the submodule dictionary
+            grouped_data[package][submodule][function] = details
+        else:
+            # If the submodule is empty, append the item directly under the package
+            if "__no_submodule" not in grouped_data[package]:
+                grouped_data[package]["__no_submodule"] = {}
+            # Use the function name as the key within the no_submodule dictionary
+            grouped_data[package]["__no_submodule"][function] = details
+
+    return grouped_data
+
 def process_text_file(input_file, output_file):
     data = {}
     with open(input_file, 'r') as f:
@@ -210,6 +238,9 @@ def process_text_file(input_file, output_file):
     for key in ['Returns', 'Notes', 'Examples']:
         remove_header_prefix(data, key)
     
+    
+    data = group_data_by_package_and_submodule(data)
+    #print(data.items())
     # Write data to JSON file
     with open(output_file, 'w') as f:
         json.dump(data, f, indent=4)
