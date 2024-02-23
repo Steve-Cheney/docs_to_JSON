@@ -89,7 +89,7 @@ def process_text_file(input_file, output_file):
         in_returns = False  # Flag to track when to parse returns
         in_notes = False  # Flag to track when to parse notes
         in_see_also = False  # Flag to track when to parse lines under "See also"
-        in_example = False
+        in_example = False # Flag to track when to parse examples
         last_key = None
         value_accumulator = None
 
@@ -131,7 +131,7 @@ def process_text_file(input_file, output_file):
                 in_see_also = False
                 in_example = False
             elif line.strip().startswith("Return") and lines[i+1].strip().startswith("-"):
-                # Stop parsing parameters and start parsing returns
+                # Start parsing returns
                 in_parameters = False
                 in_returns = True
                 in_notes = False
@@ -139,7 +139,7 @@ def process_text_file(input_file, output_file):
                 in_example = False
                 returns += line
             elif line.strip().startswith("Note") and lines[i+1].strip().startswith("-"):
-                # Stop parsing returns and start parsing notes
+                # Start parsing notes
                 in_parameters = False
                 in_returns = False
                 in_notes = True
@@ -147,7 +147,7 @@ def process_text_file(input_file, output_file):
                 in_example = False
                 notes += line
             elif line.lower().strip().startswith("see also") and lines[i+1].strip().startswith("-"):
-                # Start parsing lines under see also
+                # Start parsing see also
                 in_parameters = False
                 in_returns = False
                 in_notes = False
@@ -155,7 +155,7 @@ def process_text_file(input_file, output_file):
                 in_example = False
                 see_also_block += line
             elif line.lower().strip().startswith("example") and lines[i+1].strip().startswith("-"):
-                # Start parsing lines under example
+                # Start parsing example
                 in_parameters = False
                 in_returns = False
                 in_notes = False
@@ -234,7 +234,7 @@ def process_text_file(input_file, output_file):
                 "Return type": return_type.strip(),
                 "Notes": notes.strip(),
                 "Examples": example.strip(),
-                "See also": see_also_block.strip()  # Store the See_also block
+                "See also": see_also_block.strip()
             }
     
     remove_parameters_with_dash(data)
@@ -242,14 +242,11 @@ def process_text_file(input_file, output_file):
     for key in ['Returns', 'Notes', 'Examples', "See also"]:
         remove_header_prefix(data, key)
     
-    
     data = group_data_by_package_and_submodule(data)
-    #print(data.items())
+
     # Write data to JSON file
     with open(output_file, 'w') as f:
         json.dump(data, f, indent=4)
-
-
 
 if __name__ == "__main__":
     if len(sys.argv) !=  3:
