@@ -32,7 +32,8 @@ def remove_key_in_value(json_obj):
 def remove_header_prefix(json_obj, key_name):
     if isinstance(json_obj, dict):
         for key, value in json_obj.items():
-            if key == key_name and isinstance(value, str):
+            # Check if the key exists and is a string before proceeding
+            if key == key_name and key in json_obj and isinstance(value, str):
                 # Split the string at the first occurrence of "-\n", keep the rest
                 parts = value.split("-\n",  1)
                 if len(parts) >  1:
@@ -235,7 +236,7 @@ def process_text_file(input_file, output_file):
     
     remove_parameters_with_dash(data)
     remove_key_in_value(data)
-    for key in ['Returns', 'Notes', 'Examples']:
+    for key in ['Returns', 'Notes', 'Examples', "See also"]:
         remove_header_prefix(data, key)
     
     
