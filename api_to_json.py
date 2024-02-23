@@ -81,6 +81,7 @@ def process_text_file(input_file, output_file):
         description = ""
         parameters = {}
         returns = ""
+        return_type = ""
         notes = ""
         see_also_block = ""
         example = ""
@@ -102,6 +103,7 @@ def process_text_file(input_file, output_file):
                         "Description": description.strip(),
                         "Parameters": parameters,
                         "Returns": returns.strip(),
+                        "Return type": return_type.strip(),
                         "Notes": notes.strip(),
                         "Examples": example.strip(),
                         "See also": see_also_block.strip()  # Store the See_also block
@@ -229,6 +231,7 @@ def process_text_file(input_file, output_file):
                 "Description": description.strip(),
                 "Parameters": parameters,
                 "Returns": returns.strip(),
+                "Return type": return_type.strip(),
                 "Notes": notes.strip(),
                 "Examples": example.strip(),
                 "See also": see_also_block.strip()  # Store the See_also block
