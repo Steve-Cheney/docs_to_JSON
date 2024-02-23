@@ -41,8 +41,8 @@ def extract_pydoc(functions_file, output_file, module_in, is_silent):
                         good_functions.append(full_func_group)
                         
                         out_f.write(f"Function: {full_func_group}\n")
-                        out_f.write(f"Package: {module_name}\n")
-                        out_f.write(f"Submodules: {'.'.join(submodules)}\n")
+                        #out_f.write(f"Package: {module_name}\n")
+                        #out_f.write(f"Submodules: {'.'.join(submodules)}\n")
                         out_f.write(f"{pydoc}\n\n")
                                                 
                         last_non_empty_line = out_f.tell()  # Remember the position of the last non-empty line

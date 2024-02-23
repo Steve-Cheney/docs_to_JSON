@@ -29,58 +29,20 @@ def remove_key_in_value(json_obj):
         for item in json_obj:
             remove_key_in_value(item)
 
-def remove_returns_prefix(json_obj):
+def remove_header_prefix(json_obj, key_name):
     if isinstance(json_obj, dict):
         for key, value in json_obj.items():
-            if key == "Returns" and isinstance(value, str):
-                returns_index = value.find("Returns\n-------\n")
-                if returns_index != -1:
-                    json_obj[key] = value[returns_index + len("Returns\n-------\n"):].strip()
+            if key == key_name and isinstance(value, str):
+                # Split the string at the first occurrence of "-\n", keep the rest
+                parts = value.split("-\n",  1)
+                if len(parts) >  1:
+                    # Combine the rest of the string, removing the separator
+                    json_obj[key] = parts[1]
             else:
-                remove_returns_prefix(value)
+                remove_header_prefix(value, key_name)
     elif isinstance(json_obj, list):
         for item in json_obj:
-            remove_returns_prefix(item)
-
-def remove_seealso_prefix(json_obj):
-    if isinstance(json_obj, dict):
-        for key, value in json_obj.items():
-            if key == "See also" and isinstance(value, str):
-                returns_index = value.find("See also\n--------\n")
-                if returns_index != -1:
-                    json_obj[key] = value[returns_index + len("See also\n--------\n"):].strip()
-            else:
-                remove_seealso_prefix(value)
-    elif isinstance(json_obj, list):
-        for item in json_obj:
-            remove_seealso_prefix(item)
-
-
-def remove_seealso2_prefix(json_obj):
-    if isinstance(json_obj, dict):
-        for key, value in json_obj.items():
-            if key == "See also" and isinstance(value, str):
-                returns_index = value.find("See Also\n--------\n")
-                if returns_index != -1:
-                    json_obj[key] = value[returns_index + len("See Also\n--------\n"):].strip()
-            else:
-                remove_seealso2_prefix(value)
-    elif isinstance(json_obj, list):
-        for item in json_obj:
-            remove_seealso2_prefix(item)
-
-def remove_notes_prefix(json_obj):
-    if isinstance(json_obj, dict):
-        for key, value in json_obj.items():
-            if key == "Notes" and isinstance(value, str):
-                returns_index = value.find("Notes\n-----\n")
-                if returns_index != -1:
-                    json_obj[key] = value[returns_index + len("Notes\n-----\n"):].strip()
-            else:
-                remove_notes_prefix(value)
-    elif isinstance(json_obj, list):
-        for item in json_obj:
-            remove_notes_prefix(item)
+            remove_header_prefix(item, key_name)
 
 def process_text_file(input_file, output_file):
     data = {}
@@ -106,6 +68,8 @@ def process_text_file(input_file, output_file):
                 if function is not None:
                     # Store the collected data for the previous function
                     data[function] = {
+                        "Package": function.split('.')[0],
+                        "Submodule": "" if len(function.split('.')) <= 2 else '.'.join(function.split('.')[1:-1]),
                         "Description": description.strip(),
                         "Parameters": parameters,
                         "Returns": returns.strip(),
@@ -231,6 +195,8 @@ def process_text_file(input_file, output_file):
         # Capture the last function-description pair
         if function is not None:
             data[function] = {
+                "Package": function.split('.')[0],
+                "Submodule": "" if len(function.split('.')) <= 2 else '.'.join(function.split('.')[1:-1]),
                 "Description": description.strip(),
                 "Parameters": parameters,
                 "Returns": returns.strip(),
@@ -241,10 +207,8 @@ def process_text_file(input_file, output_file):
     
     remove_parameters_with_dash(data)
     remove_key_in_value(data)
-    remove_returns_prefix(data)
-    remove_notes_prefix(data)
-    remove_seealso_prefix(data)
-    remove_seealso2_prefix(data)
+    for key in ['Returns', 'Notes', 'Examples']:
+        remove_header_prefix(data, key)
     
     # Write data to JSON file
     with open(output_file, 'w') as f:
